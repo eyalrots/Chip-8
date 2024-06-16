@@ -18,7 +18,8 @@ chip8:
 
 sdl:
 	cd $(SDL) && \
-	rm -rf build/* && \
+	rm -rf build; \
+	mkdir build; \
 	cd build && \
 	cmake -DSDL_STATIC=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release .. && \
 	make -j$(shell nproc)
