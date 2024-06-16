@@ -6,9 +6,9 @@ endif
 
 SDL = SDL2-2.30.3
 CFLAGS = -I./$(SDL)/include -I.
-CFLAGS = -I
+CFLAGS = -I/usr/local/include/SDL2 -I.
 LDFLAGS = -L./$(SDL)/build -lSDL2 -static
-LDFLAGS = -lSDL2 -static
+LDFLAGS = -L/usr/local/lib -lSDL2 -lSDL2main -static
 
 SRC = chip8.c emulator.c
 TARGET = emulator.out
