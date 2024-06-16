@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/Users/eyalrothschild/Google Drive/My Drive/University/Projects/Chip8/SDL2-2.30.3/src/main/dummy/SDL_dummy_main.c" "CMakeFiles/SDL2main.dir/src/main/dummy/SDL_dummy_main.c.o" "gcc" "CMakeFiles/SDL2main.dir/src/main/dummy/SDL_dummy_main.c.o.d"
+  "/home/or/Dev/Chip-8/SDL2-2.30.3/src/main/dummy/SDL_dummy_main.c" "CMakeFiles/SDL2main.dir/src/main/dummy/SDL_dummy_main.c.o" "gcc" "CMakeFiles/SDL2main.dir/src/main/dummy/SDL_dummy_main.c.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

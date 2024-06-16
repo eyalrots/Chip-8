@@ -11,8 +11,18 @@ LDFLAGS = -L./$(SDL)/build -lSDL2 -static
 SRC = chip8.c emulator.c
 TARGET = emulator
 
-all: 
-	$(CC) -o $(TARGET) $(SRC) $(CFLAGS) $(LDFLAGS)
+all: sdl chip8
+
+chip8:
+	$(CC) -o $(TARGET) $(SRC) $(CFLAGS) $(LDFLAGS)	
+
+sdl:
+	cd $(SDL) && \
+	rm -rf build/* && \
+	cd build && \
+	cmake -DSDL_STATIC=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release .. && \
+	make -j$(shell nproc)
 
 clean:
-	rm -f $(TARGET)
+	rm -f $(TARGET) && \
+	cd $(SDL)/build && make clean

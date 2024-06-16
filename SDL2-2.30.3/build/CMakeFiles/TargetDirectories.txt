@@ -1,11 +1,11 @@
-/Users/eyalrothschild/Google Drive/My Drive/University/Projects/Chip8/SDL2-2.30.3/build/CMakeFiles/sdl_headers_copy.dir
-/Users/eyalrothschild/Google Drive/My Drive/University/Projects/Chip8/SDL2-2.30.3/build/CMakeFiles/SDL2main.dir
-/Users/eyalrothschild/Google Drive/My Drive/University/Projects/Chip8/SDL2-2.30.3/build/CMakeFiles/SDL2-static.dir
-/Users/eyalrothschild/Google Drive/My Drive/University/Projects/Chip8/SDL2-2.30.3/build/CMakeFiles/SDL2_test.dir
-/Users/eyalrothschild/Google Drive/My Drive/University/Projects/Chip8/SDL2-2.30.3/build/CMakeFiles/uninstall.dir
-/Users/eyalrothschild/Google Drive/My Drive/University/Projects/Chip8/SDL2-2.30.3/build/CMakeFiles/edit_cache.dir
-/Users/eyalrothschild/Google Drive/My Drive/University/Projects/Chip8/SDL2-2.30.3/build/CMakeFiles/rebuild_cache.dir
-/Users/eyalrothschild/Google Drive/My Drive/University/Projects/Chip8/SDL2-2.30.3/build/CMakeFiles/list_install_components.dir
-/Users/eyalrothschild/Google Drive/My Drive/University/Projects/Chip8/SDL2-2.30.3/build/CMakeFiles/install.dir
-/Users/eyalrothschild/Google Drive/My Drive/University/Projects/Chip8/SDL2-2.30.3/build/CMakeFiles/install/local.dir
-/Users/eyalrothschild/Google Drive/My Drive/University/Projects/Chip8/SDL2-2.30.3/build/CMakeFiles/install/strip.dir
+/home/or/Dev/Chip-8/SDL2-2.30.3/build/CMakeFiles/sdl_headers_copy.dir
+/home/or/Dev/Chip-8/SDL2-2.30.3/build/CMakeFiles/SDL2main.dir
+/home/or/Dev/Chip-8/SDL2-2.30.3/build/CMakeFiles/SDL2-static.dir
+/home/or/Dev/Chip-8/SDL2-2.30.3/build/CMakeFiles/SDL2_test.dir
+/home/or/Dev/Chip-8/SDL2-2.30.3/build/CMakeFiles/uninstall.dir
+/home/or/Dev/Chip-8/SDL2-2.30.3/build/CMakeFiles/edit_cache.dir
+/home/or/Dev/Chip-8/SDL2-2.30.3/build/CMakeFiles/rebuild_cache.dir
+/home/or/Dev/Chip-8/SDL2-2.30.3/build/CMakeFiles/list_install_components.dir
+/home/or/Dev/Chip-8/SDL2-2.30.3/build/CMakeFiles/install.dir
+/home/or/Dev/Chip-8/SDL2-2.30.3/build/CMakeFiles/install/local.dir
+/home/or/Dev/Chip-8/SDL2-2.30.3/build/CMakeFiles/install/strip.dir

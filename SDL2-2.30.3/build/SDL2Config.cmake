@@ -57,8 +57,8 @@ endif()
 
 include("${CMAKE_CURRENT_LIST_DIR}/sdlfind.cmake")
 
-set(SDL_ALSA OFF)
-set(SDL_ALSA_SHARED OFF)
+set(SDL_ALSA ON)
+set(SDL_ALSA_SHARED ON)
 if(SDL_ALSA AND NOT SDL_ALSA_SHARED AND TARGET SDL2::SDL2-static)
   sdlFindALSA()
 endif()
