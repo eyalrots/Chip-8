@@ -64,18 +64,18 @@ int load_rom(chip8 *chip8, const char *rom_file) {
 
     if (rom_file_size > ROM_SIZE) {
         perror("ROM file too big!");
-        fclose(rom_file);
+        fclose(rfd);
         return 1;
     }
 
     char rom_buffer[rom_file_size];
-    fread(rom_buffer, 1, rom_file_size, rom_file);
+    fread(rom_buffer, 1, rom_file_size, rfd);
 
     for (int i = 0; i < rom_file_size; i++) {
         chip8->memory[START_OF_ROM + i] = rom_buffer[i];
     }
 
-    fclose(rom_file);
+    fclose(rfd);
     return 0;
 }
 
