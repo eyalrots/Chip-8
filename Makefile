@@ -9,7 +9,7 @@ CFLAGS = -I./$(SDL)/include -I.
 LDFLAGS = -L./$(SDL)/build -lSDL2 -static
 
 SRC = chip8.c emulator.c
-TARGET = emulator
+TARGET = emulator.out
 
 all: sdl chip8
 
