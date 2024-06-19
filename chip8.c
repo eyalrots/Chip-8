@@ -278,7 +278,6 @@ void decode_D(chip8 *chip8, uchar c1, uchar vx, uchar vy) {
 }
 
 void decode_E(chip8 *chip8, uchar c2, uchar vx) {
-    if (SDl_Init(SDL_INIT_EVENTS) != 0) { return; } //move init to emulator.
     SDL_PumpEvents(); //update keyboard state
     const Uint8 *state = SDL_GetKeyboardState(NULL);
     uchar is_pressed = key_decode(chip8, chip8->V[vx], 0x00);
