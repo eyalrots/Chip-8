@@ -34,6 +34,9 @@
 
 #define BYTESCAN(N)     (0x80 >> N)
 
+#define SCANCODE_LIST   {30,31,32,33,20,26,8,21,4,22,7,9,29,27,6,25}
+#define KEYS_SIZE       0x10
+
 typedef unsigned char   uchar;
 typedef unsigned short  ushort;
 
@@ -62,3 +65,6 @@ void decode_0(chip8 *chip8, ushort c2);
 void decode_8(chip8 *chip8, uchar c1, uchar vx, uchar vy);
 void decode_D(chip8 *chip8, uchar c1, uchar vx, uchar vy);
 void decode_E(chip8 *chip8, uchar c2, uchar vx);
+void decode_F(chip8 *chip8, uchar c2, uchar vx);
+int key_decode(chip8 *chip8, uchar key, uchar flag);
+void cycle(chip8 *chip8);

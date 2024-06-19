@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include <sys/stat.h>
 #include <stdlib.h>
+#include <SDL2/SDL.h>
 #include "chip8.h"
 
 const uchar charfont[FONT_SIZE] = {
@@ -146,13 +148,13 @@ void fde(chip8 *chip8) {
             decode_D(chip8, c1, r_1, r_2);
             break;
         case 0xE0:
-            //call function for code E - Key presses.
+            decode_E(chip8, c2, r_1);
             break;
         case 0xF0:
-            //call function for code F
+            decode_F(chip8, c2, r_1);
             break;
         default:
-            break;
+            return;
     }
 }
 
@@ -168,6 +170,7 @@ void decode_0(chip8 *chip8, ushort c2) {
         default:
             break;
     }
+    return;
 }
 
 void decode_8(chip8 *chip8, uchar c1, uchar vx, uchar vy) {
@@ -236,6 +239,7 @@ void decode_8(chip8 *chip8, uchar c1, uchar vx, uchar vy) {
     default:
         break;
     }
+    return;
 }
 
 void decode_D(chip8 *chip8, uchar c1, uchar vx, uchar vy) {
@@ -270,16 +274,207 @@ void decode_D(chip8 *chip8, uchar c1, uchar vx, uchar vy) {
             break;
         }
     }
+    return;
 }
 
 void decode_E(chip8 *chip8, uchar c2, uchar vx) {
+    if (SDl_Init(SDL_INIT_EVENTS) != 0) { return; } //move init to emulator.
+    SDL_PumpEvents(); //update keyboard state
+    const Uint8 *state = SDL_GetKeyboardState(NULL);
+    uchar is_pressed = key_decode(chip8, chip8->V[vx], 0x00);
+    if (is_pressed < 0) { return; }
+
     switch (c2)
     {
     case 0x9E: //SKP Vx
-        
+        if (state[is_pressed] == 1) {
+            chip8->PC += 2;
+        }
         break;
-    
+    case 0xA1: //SKNP Vx
+        if (state[is_pressed] == 0) {
+            chip8->PC += 2;
+        }
+        break;
     default:
         break;
     }
+    return;
+}
+
+int key_decode(chip8 *chip8, uchar key, uchar flag) {
+    flag = (flag == 0xFF) ? 0xFF : 0x00;
+    if (flag == 0xFF) { //check which key is pressed
+        switch (key)
+        {
+        case SDL_SCANCODE_1:
+            return 0x00;
+            break;
+        case SDL_SCANCODE_2:
+            return 0x01;
+            break;
+        case SDL_SCANCODE_3:
+            return 0x02;
+            break;
+        case SDL_SCANCODE_4:
+            return 0x03;
+            break;
+        case SDL_SCANCODE_Q:
+            return 0x04;
+            break;
+        case SDL_SCANCODE_W:
+            return 0x05;
+            break;
+        case SDL_SCANCODE_E:
+            return 0x06;
+            break;
+        case SDL_SCANCODE_R:
+            return 0x07;
+            break;
+        case SDL_SCANCODE_A:
+            return 0x08;
+            break;
+        case SDL_SCANCODE_S:
+            return 0x09;
+            break;
+        case SDL_SCANCODE_D:
+            return 0x0A;
+            break;
+        case SDL_SCANCODE_F:
+            return 0x0B;
+            break;
+        case SDL_SCANCODE_Z:
+            return 0x0C;
+            break;
+        case SDL_SCANCODE_X:
+            return 0x0D;
+            break;
+        case SDL_SCANCODE_C:
+            return 0x0E;
+            break;
+        case SDL_SCANCODE_V:
+            return 0x0F;
+            break;
+        default:
+            return -1;
+            break;
+        }
+    } else if (flag == 0x00){ //check if V[vx] key was pressed
+        switch (key)
+        {
+        case 0x00:
+            return SDL_SCANCODE_1;
+            break;
+        case 0x01:
+            return SDL_SCANCODE_2;
+            break;
+        case 0x02:
+            return SDL_SCANCODE_3;
+            break;
+        case 0x03:
+            return SDL_SCANCODE_4;
+            break;
+        case 0x04:
+            return SDL_SCANCODE_Q;
+            break;
+        case 0x05:
+            return SDL_SCANCODE_W;
+            break;
+        case 0x06:
+            return SDL_SCANCODE_E;
+            break;
+        case 0x07:
+            return SDL_SCANCODE_R;
+            break;
+        case 0x08:
+            return SDL_SCANCODE_A;
+            break;
+        case 0x09:
+            return SDL_SCANCODE_S;
+            break;
+        case 0x0A:
+            return SDL_SCANCODE_D;
+            break;
+        case 0x0B:
+            return SDL_SCANCODE_F;
+            break;
+        case 0x0C:
+            return SDL_SCANCODE_Z;
+            break;
+        case 0x0D:
+            return SDL_SCANCODE_X;
+            break;
+        case 0x0E:
+            return SDL_SCANCODE_C;
+            break;
+        case 0x0F:
+            return SDL_SCANCODE_V;
+            break;
+        default:
+            return -1;
+            break;
+        }
+    }
+    return -1;
+}
+
+void decode_F(chip8 *chip8, uchar c2, uchar vx) {
+    SDL_PumpEvents();
+    const Uint8 *state = SDL_GetKeyboardState(NULL);
+    switch (c2)
+    {
+    case 0x07: // LD Vx, DT
+        chip8->V[vx] = chip8->DT;
+        break;
+    case 0x0A: // LD Vx, K
+        uchar is_pressed = -1;
+        while (is_pressed == -1) {
+            for (int i = 0; i < KEYS_SIZE; i++) {
+                if (state[i] == 1) {
+                    is_pressed = key_decode(chip8, state[i], 0xFF);
+                }
+            }
+        }
+        chip8->V[vx] = is_pressed;
+        break;
+    case 0x15: // LD DT, Vx
+        chip8->DT = chip8->V[vx];
+        break;
+    case 0x18: // LD ST, Vx
+        chip8->ST = chip8->V[vx];
+        break;
+    case 0x1E: // ADD I, Vx
+        chip8->I += chip8->V[vx];
+        break;
+    case 0x29: // LD F, Vx
+        chip8->I = chip8->V[vx];
+        break;
+    case 0x33: // LD B, Vx
+        chip8->memory[chip8->I] = chip8->V[vx] / 100;
+        chip8->memory[chip8->I+1] = chip8->V[vx] / 10;
+        chip8->memory[chip8->I+2] = chip8->V[vx] % 100 % 10;
+        break;
+    case 0x55: // LD [I], Vx
+        for (int i = 0; i < REG_FILE_SIZE; i++) {
+            chip8->memory[chip8->I+i] = chip8->V[i];
+        }
+        break;
+    case 0x65: // LD Vx, [I]
+        for (int i = 0; i < REG_FILE_SIZE; i++) {
+            chip8->V[i] = chip8->memory[chip8->I+i];
+        }
+        break;
+    default:
+        return;
+    }
+}
+
+void cycle(chip8 *chip8) {
+    //time delay equivalent to 1MHz
+    struct timespec req = {0, 1000};
+    nanosleep(&req, NULL);
+    //fetch - decode - execute
+    fde(chip8);
+
+    return;
 }
