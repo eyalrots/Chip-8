@@ -92,6 +92,7 @@ void fde(chip8 *chip8) {
     uchar c2 = command & CONST_C2; //takes LSB byte (8 bit)
     ushort c3 = command & CONST_C3; //takes LSB nibble of MSB byte + LSB byte (16(12) bit)
 
+    uchar rand;
     //decode + execute(in cases)
     switch (opcode) {
         case 0x00:
@@ -141,7 +142,7 @@ void fde(chip8 *chip8) {
             chip8->PC = chip8->V[0] + c3;
             break;
         case 0xC0: //RND Vx, byte
-            uchar rand = (uchar)(random() % 256);
+            rand = (uchar)(random() % 256);
             chip8->V[r_1] = rand & c2;
             break;
         case 0xD0: //DRW Vx, Vy, nibble(c1)
@@ -174,6 +175,7 @@ void decode_0(chip8 *chip8, ushort c2) {
 }
 
 void decode_8(chip8 *chip8, uchar c1, uchar vx, uchar vy) {
+    ushort temp;
     switch (c1)
     {
     case 0x00: //LD Vx, Vy
@@ -189,7 +191,7 @@ void decode_8(chip8 *chip8, uchar c1, uchar vx, uchar vy) {
         chip8->V[vx] = vx ^ vy;
         break;
     case 0x04: //ADD Vx, Vy
-        ushort temp = chip8->V[vx] + chip8->V[vy];
+        temp = chip8->V[vx] + chip8->V[vy];
         if (((temp >> 8) & CONST_C2) != 0x00) {
             chip8->V[15] = 1;
         }
@@ -420,17 +422,20 @@ int key_decode(chip8 *chip8, uchar key, uchar flag) {
 void decode_F(chip8 *chip8, uchar c2, uchar vx) {
     SDL_PumpEvents();
     const Uint8 *state = SDL_GetKeyboardState(NULL);
+    char is_pressed;
+    uchar key_pressed;
     switch (c2)
     {
     case 0x07: // LD Vx, DT
         chip8->V[vx] = chip8->DT;
         break;
     case 0x0A: // LD Vx, K
-        uchar is_pressed = -1;
+        is_pressed = -1;
         while (is_pressed == -1) {
             for (int i = 0; i < KEYS_SIZE; i++) {
                 if (state[i] == 1) {
-                    is_pressed = key_decode(chip8, state[i], 0xFF);
+                    key_pressed = key_decode(chip8, state[i], 0xFF);
+                    is_pressed = 0;
                 }
             }
         }
