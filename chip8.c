@@ -25,7 +25,7 @@ const uchar charfont[FONT_SIZE] = {
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
 
-int init_chip8(chip8 *chip8, const char *rom_file)
+int init_chip8(chip8_t *chip8, const char *rom_file)
 {
     //init special-perpose registers
     chip8->PC = START_OF_ROM;
@@ -49,7 +49,7 @@ int init_chip8(chip8 *chip8, const char *rom_file)
     return 0;
 }
 
-int load_rom(chip8 *chip8, const char *rom_file) {
+int load_rom(chip8_t *chip8, const char *rom_file) {
     int rom_file_size;
     FILE *rfd;
 
@@ -82,7 +82,7 @@ int load_rom(chip8 *chip8, const char *rom_file) {
 }
 
 //fetch-decode-execute
-void fde(chip8 *chip8) {
+void fde(chip8_t *chip8) {
     //fetch
     ushort command = chip8->memory[chip8->PC];
     uchar opcode = (command >> 8) & OPCODE_MSK; //takes 4 MSB bits of command (8(4) bit)
@@ -159,7 +159,7 @@ void fde(chip8 *chip8) {
     }
 }
 
-void decode_0(chip8 *chip8, ushort c2) {
+void decode_0(chip8_t *chip8, ushort c2) {
     switch (c2) {
         case 0x0E: //CLS
             memset(chip8->display, 0, DISPLAY_SIZE);
@@ -174,7 +174,7 @@ void decode_0(chip8 *chip8, ushort c2) {
     return;
 }
 
-void decode_8(chip8 *chip8, uchar c1, uchar vx, uchar vy) {
+void decode_8(chip8_t *chip8, uchar c1, uchar vx, uchar vy) {
     ushort temp;
     switch (c1)
     {
@@ -244,7 +244,7 @@ void decode_8(chip8 *chip8, uchar c1, uchar vx, uchar vy) {
     return;
 }
 
-void decode_D(chip8 *chip8, uchar c1, uchar vx, uchar vy) {
+void decode_D(chip8_t *chip8, uchar c1, uchar vx, uchar vy) {
     // get x and y coordinants, & op wraps sprite to other side of display
     uchar x_cor = chip8->V[vx] & DISPLAY_WIDTH-1;
     uchar y_cor = chip8->V[vy] & DISPLAY_HIGHT-1;
@@ -279,7 +279,7 @@ void decode_D(chip8 *chip8, uchar c1, uchar vx, uchar vy) {
     return;
 }
 
-void decode_E(chip8 *chip8, uchar c2, uchar vx) {
+void decode_E(chip8_t *chip8, uchar c2, uchar vx) {
     SDL_PumpEvents(); //update keyboard state
     const Uint8 *state = SDL_GetKeyboardState(NULL);
     uchar is_pressed = key_decode(chip8, chip8->V[vx], 0x00);
@@ -303,7 +303,7 @@ void decode_E(chip8 *chip8, uchar c2, uchar vx) {
     return;
 }
 
-int key_decode(chip8 *chip8, uchar key, uchar flag) {
+int key_decode(chip8_t *chip8, uchar key, uchar flag) {
     flag = (flag == 0xFF) ? 0xFF : 0x00;
     if (flag == 0xFF) { //check which key is pressed
         switch (key)
@@ -419,7 +419,7 @@ int key_decode(chip8 *chip8, uchar key, uchar flag) {
     return -1;
 }
 
-void decode_F(chip8 *chip8, uchar c2, uchar vx) {
+void decode_F(chip8_t *chip8, uchar c2, uchar vx) {
     SDL_PumpEvents();
     const Uint8 *state = SDL_GetKeyboardState(NULL);
     char is_pressed;
@@ -473,7 +473,7 @@ void decode_F(chip8 *chip8, uchar c2, uchar vx) {
     }
 }
 
-void cycle(chip8 *chip8) {
+void cycle(chip8_t *chip8) {
     //time delay equivalent to 1MHz
     struct timespec req = {0, 1000};
     nanosleep(&req, NULL);

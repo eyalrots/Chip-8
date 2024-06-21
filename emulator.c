@@ -11,8 +11,8 @@
 
 int main(int argc, char *argv[])
 {
-    struct chip8 *chip8;
-    if (init_chip8(chip8, ROM) != 0) { 
+    chip8_t chip8;
+    if (init_chip8(&chip8, ROM) != 0) { 
         perror("Init not successful!"); 
         return 1;
     }
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     // emulator cycle
     int flag = 0;
     while (flag == 0) {
-        emulate_cycle(chip8, renderer);
+        emulate_cycle(&chip8, renderer);
         printf("emulate cycle successful!\n");
     }
 
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void emulate_cycle(chip8 *chip8, SDL_Renderer* renderer) {
+void emulate_cycle(chip8_t *chip8, SDL_Renderer* renderer) {
     cycle(chip8);
     printf("chip cycle successful!\n");
     //Print display using SDL
