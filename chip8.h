@@ -1,6 +1,6 @@
 //masking
-#define OPCODE_MSK      0xF0
-#define FIRST_REG_MSK   0x0F
+#define OPCODE_MSK      0x0F
+#define FIRST_REG_MSK   0xF0
 #define SECOND_REG_MSK  0xF0
 #define CONST_C1        0x0F
 #define CONST_C2        0xFF

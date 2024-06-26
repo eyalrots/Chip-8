@@ -33,7 +33,7 @@ int init_chip8(chip8_t *chip8, const char *rom_file)
     chip8->SP = 0;
     chip8->DT = 0;
     chip8->ST = 0;
-
+        
     memset(chip8->display, 0, DISPLAY_SIZE);
 
     //init interpreter code in ram
@@ -63,6 +63,7 @@ int load_rom(chip8_t *chip8, const char *rom_file) {
     if (rfd == NULL) {
         return 1;
     }
+    printf("<<YAIR>> file size: %d\n", rom_file_size);
 
     if (rom_file_size > ROM_SIZE) {
         perror("ROM file too big!");
@@ -77,6 +78,7 @@ int load_rom(chip8_t *chip8, const char *rom_file) {
         chip8->memory[START_OF_ROM + i] = rom_buffer[i];
     }
 
+
     fclose(rfd);
     return 0;
 }
@@ -84,22 +86,27 @@ int load_rom(chip8_t *chip8, const char *rom_file) {
 //fetch-decode-execute
 int fde(chip8_t *chip8) {
     //fetch
-    ushort command = chip8->memory[chip8->PC];
-    uchar opcode = (command >> 8) & OPCODE_MSK; //takes 4 MSB bits of command (8(4) bit)
-    uchar r_1 = (command >> 8) & FIRST_REG_MSK; //takes LSB nibble of the MSB byte (8(4) bit)
+    ushort command = chip8->memory[chip8->PC] << 8 | chip8->memory[chip8->PC + 1];
+    //ushort command = chip8->memory[chip8->PC];
+    ushort opcode = (command >> 8) & 0xF0; //takes 4 MSB bits of command (8(4) bit)
+    uchar r_1 = (command >> 8) & 0x0F; //takes LSB nibble of the MSB byte (8(4) bit)
     uchar r_2 = command & SECOND_REG_MSK; //takes MSB nibble of LSB byte (8(4) bit)
     uchar c1 = command & CONST_C1; //takes LSB nibble of LSB byte (8(4) bit)
     uchar c2 = command & CONST_C2; //takes LSB byte (8 bit)
     ushort c3 = command & CONST_C3; //takes LSB nibble of MSB byte + LSB byte (16(12) bit)
 
+    printf("<<YAIR>> command: 0x%04X\n", command);
+    int jump = 0;
     uchar rand;
+
     //decode + execute(in cases)
     switch (opcode) {
-        case 0x00:
+        case 0x00:            
             if (decode_0(chip8, c2) == 1) { return 1;}
             break;
         case 0x10: //JP addr
             chip8->PC = c3;
+            jump = 1;
             break;
         case 0x20: //CALL addr
             chip8->SP++;
@@ -140,6 +147,7 @@ int fde(chip8_t *chip8) {
             break;
         case 0xB0://JP V0, addr
             chip8->PC = chip8->V[0] + c3;
+            jump = 1;
             break;
         case 0xC0: //RND Vx, byte
             rand = (uchar)(random() % 256);
@@ -157,12 +165,17 @@ int fde(chip8_t *chip8) {
         default:
             return 1;
     }
+
+    if (!jump) {
+        chip8->PC += 2;
+    }
+
     return 0;
 }
 
 int decode_0(chip8_t *chip8, ushort c2) {
     switch (c2) {
-        case 0x0E: //CLS
+        case 0xE0: //CLS
             memset(chip8->display, 0, DISPLAY_SIZE);
             break;
         case 0xEE: //RET
@@ -221,6 +234,7 @@ int decode_8(chip8_t *chip8, uchar c1, uchar vx, uchar vy) {
         chip8->V[vx] = (chip8->V[vx] >> 1);
         break;
     case 0x07: // SUBN Vx, Vy
+        
         if (chip8->V[vy] > chip8->V[vx]) {
             chip8->V[15] = 1;
         }
@@ -250,9 +264,9 @@ void decode_D(chip8_t *chip8, uchar c1, uchar vx, uchar vy) {
     uchar x_cor = chip8->V[vx] & DISPLAY_WIDTH-1;
     uchar y_cor = chip8->V[vy] & DISPLAY_HIGHT-1;
     chip8->V[15] = 0;
-
+    printf("<<YAIR>>before\n");
     for (int i = 0; i < c1; i++) {
-        uchar sprite = chip8->memory[chip8->I + i];
+        uchar sprite = chip8->memory[chip8->I + i];        
 
         for (int j = 0; j < 8; j++) {
             uchar pxl = sprite & BYTESCAN(j);
@@ -264,19 +278,23 @@ void decode_D(chip8_t *chip8, uchar c1, uchar vx, uchar vy) {
                 chip8->V[15] = 0;
             }
 
-            chip8->display[x_cor][y_cor] ^= pxl;
+            printf("pxl: 0x%02X\n", pxl);
+            chip8->display[x_cor][y_cor] ^= 1;
 
-            x_cor++;
+            
             if (x_cor >= DISPLAY_WIDTH) {
                 break;
             }
+            x_cor++;
         }
 
-        y_cor++;
+        
         if (y_cor >= DISPLAY_HIGHT) {
             break;
         }
+        y_cor++;
     }
+    printf("<<YAIR>>after\n");
     return;
 }
 
