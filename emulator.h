@@ -1,3 +1,3 @@
 #include "chip8.h"
 
-//void emulate_cycle(chip8 *chip8, SDL_Renderer* renderer);
+int emulate_cycle(chip8_t *chip8, SDL_Renderer* renderer);
