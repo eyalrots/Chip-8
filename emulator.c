@@ -70,7 +70,7 @@ int emulate_cycle(chip8_t *chip8, SDL_Renderer* renderer) {
     //Print display using SDL
     for (int h = 0; h < DISPLAY_HIGHT; h++) {
         for (int w = 0; w < DISPLAY_WIDTH; w++) {
-            if (chip8->display[h,w] == 1) {
+            if (chip8->display[h][w] == 1) {
                 SDL_RenderDrawPoint(renderer, w, h);
             }
         }
