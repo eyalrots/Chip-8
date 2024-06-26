@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     // emulator cycle
     int flag = 0;
     while (flag == 0) {
-        emulate_cycle(&chip8, renderer);
+        if (emulate_cycle(&chip8, renderer) == 1) { return 1;}
         printf("emulate cycle successful!\n");
     }
 
@@ -61,9 +61,12 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void emulate_cycle(chip8_t *chip8, SDL_Renderer* renderer) {
-    cycle(chip8);
-    printf("chip cycle successful!\n");
+int emulate_cycle(chip8_t *chip8, SDL_Renderer* renderer) {
+    if (cycle(chip8) == 1) { 
+        printf("chip cycle exited with exit code 1\n");
+        return 1;
+    }
+    printf("chip cycle exited with exit code 0\n");
     //Print display using SDL
     for (int h = 0; h < DISPLAY_HIGHT; h++) {
         for (int w = 0; w < DISPLAY_WIDTH; w++) {
@@ -73,6 +76,6 @@ void emulate_cycle(chip8_t *chip8, SDL_Renderer* renderer) {
         }
     }
     SDL_RenderPresent(renderer);
-    return;
+    return 0;
 }
 // comment all of this

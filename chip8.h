@@ -60,11 +60,11 @@ extern const uchar charfont[FONT_SIZE];
 int init_chip8(chip8_t *chip8, const char *rom_file);
 int load_rom(chip8_t *chip8, const char *rom_file);
 
-void fde(chip8_t *chip8);
-void decode_0(chip8_t *chip8, ushort c2);
-void decode_8(chip8_t *chip8, uchar c1, uchar vx, uchar vy);
+int fde(chip8_t *chip8);
+int decode_0(chip8_t *chip8, ushort c2);
+int decode_8(chip8_t *chip8, uchar c1, uchar vx, uchar vy);
 void decode_D(chip8_t *chip8, uchar c1, uchar vx, uchar vy);
-void decode_E(chip8_t *chip8, uchar c2, uchar vx);
-void decode_F(chip8_t *chip8, uchar c2, uchar vx);
+int decode_E(chip8_t *chip8, uchar c2, uchar vx);
+int decode_F(chip8_t *chip8, uchar c2, uchar vx);
 int key_decode(chip8_t *chip8, uchar key, uchar flag);
-void cycle(chip8_t *chip8);
+int cycle(chip8_t *chip8);

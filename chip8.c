@@ -82,7 +82,7 @@ int load_rom(chip8_t *chip8, const char *rom_file) {
 }
 
 //fetch-decode-execute
-void fde(chip8_t *chip8) {
+int fde(chip8_t *chip8) {
     //fetch
     ushort command = chip8->memory[chip8->PC];
     uchar opcode = (command >> 8) & OPCODE_MSK; //takes 4 MSB bits of command (8(4) bit)
@@ -96,7 +96,7 @@ void fde(chip8_t *chip8) {
     //decode + execute(in cases)
     switch (opcode) {
         case 0x00:
-            decode_0(chip8, c2);
+            if (decode_0(chip8, c2) == 1) { return 1;}
             break;
         case 0x10: //JP addr
             chip8->PC = c3;
@@ -128,7 +128,7 @@ void fde(chip8_t *chip8) {
             chip8->V[r_1] += c2;
             break;
         case 0x80:
-            decode_8(chip8, c1, r_1, r_2);
+            if (decode_8(chip8, c1, r_1, r_2) == 1) { return 1;}
             break;
         case 0x90://SNE Vx, Vy
             if (chip8->V[r_1] != chip8->V[r_2]){
@@ -149,17 +149,18 @@ void fde(chip8_t *chip8) {
             decode_D(chip8, c1, r_1, r_2);
             break;
         case 0xE0:
-            decode_E(chip8, c2, r_1);
+            if (decode_E(chip8, c2, r_1) == 1) { return 1;}
             break;
         case 0xF0:
-            decode_F(chip8, c2, r_1);
+            if (decode_F(chip8, c2, r_1) == 1) { return 1;}
             break;
         default:
-            return;
+            return 1;
     }
+    return 0;
 }
 
-void decode_0(chip8_t *chip8, ushort c2) {
+int decode_0(chip8_t *chip8, ushort c2) {
     switch (c2) {
         case 0x0E: //CLS
             memset(chip8->display, 0, DISPLAY_SIZE);
@@ -169,12 +170,12 @@ void decode_0(chip8_t *chip8, ushort c2) {
             chip8->SP--;
             break;
         default:
-            break;
+            return 1;
     }
-    return;
+    return 0;
 }
 
-void decode_8(chip8_t *chip8, uchar c1, uchar vx, uchar vy) {
+int decode_8(chip8_t *chip8, uchar c1, uchar vx, uchar vy) {
     ushort temp;
     switch (c1)
     {
@@ -239,9 +240,9 @@ void decode_8(chip8_t *chip8, uchar c1, uchar vx, uchar vy) {
         chip8->V[vx] = (chip8->V[vx] << 1);
         break;
     default:
-        break;
+        return 1;
     }
-    return;
+    return 0;
 }
 
 void decode_D(chip8_t *chip8, uchar c1, uchar vx, uchar vy) {
@@ -279,11 +280,11 @@ void decode_D(chip8_t *chip8, uchar c1, uchar vx, uchar vy) {
     return;
 }
 
-void decode_E(chip8_t *chip8, uchar c2, uchar vx) {
+int decode_E(chip8_t *chip8, uchar c2, uchar vx) {
     SDL_PumpEvents(); //update keyboard state
     const Uint8 *state = SDL_GetKeyboardState(NULL);
     uchar is_pressed = key_decode(chip8, chip8->V[vx], 0x00);
-    if (is_pressed < 0) { return; }
+    if (is_pressed == 0xFF) { return 1; }
 
     switch (c2)
     {
@@ -298,9 +299,9 @@ void decode_E(chip8_t *chip8, uchar c2, uchar vx) {
         }
         break;
     default:
-        break;
+        return 1;
     }
-    return;
+    return 0;
 }
 
 int key_decode(chip8_t *chip8, uchar key, uchar flag) {
@@ -357,7 +358,7 @@ int key_decode(chip8_t *chip8, uchar key, uchar flag) {
             return 0x0F;
             break;
         default:
-            return -1;
+            return 0xFF;
             break;
         }
     } else if (flag == 0x00){ //check if V[vx] key was pressed
@@ -412,14 +413,14 @@ int key_decode(chip8_t *chip8, uchar key, uchar flag) {
             return SDL_SCANCODE_V;
             break;
         default:
-            return -1;
+            return 0xFF;
             break;
         }
     }
-    return -1;
+    return 0xFF;
 }
 
-void decode_F(chip8_t *chip8, uchar c2, uchar vx) {
+int decode_F(chip8_t *chip8, uchar c2, uchar vx) {
     SDL_PumpEvents();
     const Uint8 *state = SDL_GetKeyboardState(NULL);
     char is_pressed;
@@ -435,7 +436,9 @@ void decode_F(chip8_t *chip8, uchar c2, uchar vx) {
             for (int i = 0; i < KEYS_SIZE; i++) {
                 if (state[i] == 1) {
                     key_pressed = key_decode(chip8, state[i], 0xFF);
-                    is_pressed = 0;
+                    if (key_decode != 0xFF) {
+                        is_pressed = 0;
+                    }
                 }
             }
         }
@@ -469,16 +472,17 @@ void decode_F(chip8_t *chip8, uchar c2, uchar vx) {
         }
         break;
     default:
-        return;
+        return 1;
     }
+    return 0;
 }
 
-void cycle(chip8_t *chip8) {
+int cycle(chip8_t *chip8) {
     //time delay equivalent to 1MHz
     struct timespec req = {0, 1000};
     nanosleep(&req, NULL);
     //fetch - decode - execute
-    fde(chip8);
+    if (fde(chip8) == 1) { return 1;}
 
-    return;
+    return 0;
 }
