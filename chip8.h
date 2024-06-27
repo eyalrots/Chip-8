@@ -1,7 +1,6 @@
 //masking
-#define OPCODE_MSK      0x0F
-#define FIRST_REG_MSK   0xF0
-#define SECOND_REG_MSK  0xF0
+#define OPCODE_MSK      0xF0
+#define REG_MSK         0x0F
 #define CONST_C1        0x0F
 #define CONST_C2        0xFF
 #define CONST_C3        0x0FFF
@@ -12,9 +11,10 @@
 #define REG_FILE_SIZE   0x10
 #define SIZE_OF_STACK   0x10
 
+#define DISPLAY_FACTOR  0x08
 #define DISPLAY_HIGHT   0x20
 #define DISPLAY_WIDTH   0x40
-#define DISPLAY_SIZE    (DISPLAY_HIGHT * DISPLAY_WIDTH * sizeof(char))
+#define DISPLAY_SIZE    ((DISPLAY_HIGHT * DISPLAY_FACTOR) * (DISPLAY_WIDTH * DISPLAY_FACTOR) * sizeof(char))
 
 #define START_OF_MEMORY 0x000
 #define END_OF_MEMORY   0xFFF
@@ -52,7 +52,7 @@ typedef struct Chip8
     uchar   memory[MEMORY_SIZE];
     uchar   V[REG_FILE_SIZE];
 
-    uchar   display[DISPLAY_HIGHT][DISPLAY_WIDTH];
+    uchar   display[DISPLAY_HIGHT*DISPLAY_FACTOR][DISPLAY_WIDTH*DISPLAY_FACTOR];
 } chip8_t;
 
 extern const uchar charfont[FONT_SIZE];

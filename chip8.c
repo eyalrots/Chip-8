@@ -88,14 +88,12 @@ int fde(chip8_t *chip8) {
     //fetch
     ushort command = chip8->memory[chip8->PC] << 8 | chip8->memory[chip8->PC + 1];
     //ushort command = chip8->memory[chip8->PC];
-    ushort opcode = (command >> 8) & 0xF0; //takes 4 MSB bits of command (8(4) bit)
-    uchar r_1 = (command >> 8) & 0x0F; //takes LSB nibble of the MSB byte (8(4) bit)
-    uchar r_2 = command & SECOND_REG_MSK; //takes MSB nibble of LSB byte (8(4) bit)
+    ushort opcode = (command >> 8) & OPCODE_MSK; //takes 4 MSB bits of command (8(4) bit)
+    uchar r_1 = (command >> 8) & REG_MSK; //takes LSB nibble of the MSB byte (8(4) bit)
+    uchar r_2 = (command >> 4) & REG_MSK; //takes MSB nibble of LSB byte (8(4) bit)
     uchar c1 = command & CONST_C1; //takes LSB nibble of LSB byte (8(4) bit)
     uchar c2 = command & CONST_C2; //takes LSB byte (8 bit)
     ushort c3 = command & CONST_C3; //takes LSB nibble of MSB byte + LSB byte (16(12) bit)
-
-    printf("<<YAIR>> command: 0x%04X\n", command);
     int jump = 0;
     uchar rand;
 
@@ -261,40 +259,46 @@ int decode_8(chip8_t *chip8, uchar c1, uchar vx, uchar vy) {
 
 void decode_D(chip8_t *chip8, uchar c1, uchar vx, uchar vy) {
     // get x and y coordinants, & op wraps sprite to other side of display
-    uchar x_cor = chip8->V[vx] & DISPLAY_WIDTH-1;
-    uchar y_cor = chip8->V[vy] & DISPLAY_HIGHT-1;
+    uchar x_cor = chip8->V[vx] & DISPLAY_WIDTH - 1;
+    uchar y_cor = chip8->V[vy] & DISPLAY_HIGHT - 1;
+    int fact_x_cor = x_cor * DISPLAY_FACTOR;
+    int fact_y_cor = y_cor * DISPLAY_FACTOR;
+    
     chip8->V[15] = 0;
-    printf("<<YAIR>>before\n");
     for (int i = 0; i < c1; i++) {
         uchar sprite = chip8->memory[chip8->I + i];        
-
+        printf("<<YAKIR>> sprite 0x%02X\n", sprite);
         for (int j = 0; j < 8; j++) {
             uchar pxl = sprite & BYTESCAN(j);
 
-            if (chip8->display[x_cor][y_cor] == 1) {
+            if (chip8->display[y_cor][x_cor] == 1) {
                 chip8->V[15] = 1;
             }
             else {
                 chip8->V[15] = 0;
             }
 
-            printf("pxl: 0x%02X\n", pxl);
-            chip8->display[x_cor][y_cor] ^= 1;
+            for (int x = 0; x < DISPLAY_FACTOR; x++) {
+                for (int y = 0; y < DISPLAY_FACTOR; y++) {
+                    if (pxl != 0)
+                        chip8->display[fact_y_cor + y][fact_x_cor + x] ^= 1;
+                }
+            }
 
-            
-            if (x_cor >= DISPLAY_WIDTH) {
+            fact_x_cor += DISPLAY_FACTOR;
+            if (fact_x_cor >= DISPLAY_WIDTH * DISPLAY_FACTOR) {
+                printf("<<YAKIR>> out of x range!");
                 break;
             }
-            x_cor++;
+            
         }
-
-        
-        if (y_cor >= DISPLAY_HIGHT) {
+        fact_x_cor = x_cor * DISPLAY_FACTOR;
+        fact_y_cor += DISPLAY_FACTOR;
+        if (fact_y_cor >= DISPLAY_HIGHT * DISPLAY_FACTOR) {
             break;
         }
-        y_cor++;
+        
     }
-    printf("<<YAIR>>after\n");
     return;
 }
 
