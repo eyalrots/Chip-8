@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Create Window
-    SDL_Window* window = SDL_CreateWindow("Hello World!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DISPLAY_WIDTH*DISPLAY_FACTOR, DISPLAY_HIGHT*DISPLAY_FACTOR, SDL_WINDOW_SHOWN);
+    SDL_Window* window = SDL_CreateWindow("Chip 8 Display", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, DISPLAY_WIDTH*DISPLAY_FACTOR, DISPLAY_HIGHT*DISPLAY_FACTOR, SDL_WINDOW_SHOWN);
     if (window == NULL) {
         fprintf(stderr, "Window could not be created! SDL_Error: %s\n", SDL_GetError());
         return 1;

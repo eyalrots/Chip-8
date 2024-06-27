@@ -266,8 +266,8 @@ void decode_D(chip8_t *chip8, uchar c1, uchar vx, uchar vy) {
     
     chip8->V[15] = 0;
     for (int i = 0; i < c1; i++) {
-        uchar sprite = chip8->memory[chip8->I + i];        
-        printf("<<YAKIR>> sprite 0x%02X\n", sprite);
+        uchar sprite = chip8->memory[chip8->I + i];
+        
         for (int j = 0; j < 8; j++) {
             uchar pxl = sprite & BYTESCAN(j);
 
