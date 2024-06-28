@@ -7,7 +7,7 @@
 //     exit(0);
 // }
 
-#define ROM "ibm_logo.ch8"
+#define ROM "Pong (1 player).ch8"
 
 int main(int argc, char* argv[]) {
     chip8_t chip8;
@@ -36,16 +36,30 @@ int main(int argc, char* argv[]) {
     // Render Loop (just keeps the window open)
     SDL_bool quit = SDL_FALSE;
     SDL_Event e;
-    //SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    int cycle_counter = 0;
+    int flag = 0;
     while (!quit) {
         // Handle Events (look for quit event to close window)
         while (SDL_PollEvent(&e) != 0) {
             if (e.type == SDL_QUIT) {
                 quit = SDL_TRUE;
             }
-            if (emulate_cycle(&chip8, renderer) == 1)
-                break;
+            
+            // if (emulate_cycle(&chip8, renderer, cycle_counter) == 1)
+            //     break;
+            // else
+            //     cycle_counter ++;
+            
+            // if (cycle_counter > TIMER_DELAY)
+            //     cycle_counter = 0;
         }
+        if (emulate_cycle(&chip8, renderer, cycle_counter) == 1)
+            break;
+        else
+            cycle_counter ++;
+            
+        if (cycle_counter > TIMER_DELAY)
+            cycle_counter = 0;
     }
 
     // Cleanup (free resources)
@@ -57,12 +71,20 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-int emulate_cycle(chip8_t *chip8, SDL_Renderer* renderer) {
+int emulate_cycle(chip8_t *chip8, SDL_Renderer* renderer, int cycle_counter) {
     if (cycle(chip8) == 1) { 
         printf("chip cycle exited with exit code 1\n");
         return 1;
     }
-    //printf("chip cycle exited with exit code 0\n");
+    //printf("c_c %d\n", cycle_counter);
+    //timer ahndlling
+    if (cycle_counter == TIMER_DELAY) {
+        //printf("timer decreased\n");
+        if (chip8->DT != 0x00)
+            chip8->DT --;
+        if (chip8->ST != 0x00)
+            chip8->ST --;
+    }
     //Print display using SDL
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);

@@ -96,7 +96,11 @@ int fde(chip8_t *chip8) {
     ushort c3 = command & CONST_C3; //takes LSB nibble of MSB byte + LSB byte (16(12) bit)
     int jump = 0;
     uchar rand;
-
+    // if (chip8->V[0x0A] == 0x00) {
+    //     printf("stooooop there's an ERROR here!!!\n");
+    //     //return 1;
+    // }
+    // printf("<<YAKIR>> address 0x%04X commad: 0x%04X\n", chip8->memory[chip8->PC], command);
     //decode + execute(in cases)
     switch (opcode) {
         case 0x00:            
@@ -194,13 +198,13 @@ int decode_8(chip8_t *chip8, uchar c1, uchar vx, uchar vy) {
         chip8->V[vx] = chip8->V[vy];
         break;
     case 0x01: //OR Vx, Vy
-        chip8->V[vx] = vx | vy;
+        chip8->V[vx] = chip8->V[vx] | chip8->V[vy];
         break;
     case 0x02: //AND Vx, Vy
-        chip8->V[vx] = vx & vy;
+        chip8->V[vx] = chip8->V[vx] & chip8->V[vy];
         break;
     case 0x03: //XOR Vx, Vy
-        chip8->V[vx] = vx ^ vy;
+        chip8->V[vx] = chip8->V[vx] ^ chip8->V[vy];
         break;
     case 0x04: //ADD Vx, Vy
         temp = chip8->V[vx] + chip8->V[vy];
@@ -263,19 +267,18 @@ void decode_D(chip8_t *chip8, uchar c1, uchar vx, uchar vy) {
     uchar y_cor = chip8->V[vy] & DISPLAY_HIGHT - 1;
     int fact_x_cor = x_cor * DISPLAY_FACTOR;
     int fact_y_cor = y_cor * DISPLAY_FACTOR;
-    
+    //printf("V[vx] 0x%02X V[vy] 0x%02X\n", chip8->V[vx], chip8->V[vy]);
+    // if (x_cor == 0x00)
+    //     printf("stooooop there's an ERROR here!!!\n");
     chip8->V[15] = 0;
     for (int i = 0; i < c1; i++) {
         uchar sprite = chip8->memory[chip8->I + i];
-        
+
         for (int j = 0; j < 8; j++) {
             uchar pxl = sprite & BYTESCAN(j);
 
-            if (chip8->display[y_cor][x_cor] == 1) {
+            if (chip8->display[fact_y_cor][fact_x_cor] == 1) {
                 chip8->V[15] = 1;
-            }
-            else {
-                chip8->V[15] = 0;
             }
 
             for (int x = 0; x < DISPLAY_FACTOR; x++) {
@@ -287,7 +290,6 @@ void decode_D(chip8_t *chip8, uchar c1, uchar vx, uchar vy) {
 
             fact_x_cor += DISPLAY_FACTOR;
             if (fact_x_cor >= DISPLAY_WIDTH * DISPLAY_FACTOR) {
-                printf("<<YAKIR>> out of x range!");
                 break;
             }
             
@@ -305,7 +307,7 @@ void decode_D(chip8_t *chip8, uchar c1, uchar vx, uchar vy) {
 int decode_E(chip8_t *chip8, uchar c2, uchar vx) {
     SDL_PumpEvents(); //update keyboard state
     const Uint8 *state = SDL_GetKeyboardState(NULL);
-    uchar is_pressed = key_decode(chip8, chip8->V[vx], 0x00);
+    uchar is_pressed = key_decode(chip8->V[vx], 0x00);
     if (is_pressed == 0xFF) { return 1; }
 
     switch (c2)
@@ -326,7 +328,7 @@ int decode_E(chip8_t *chip8, uchar c2, uchar vx) {
     return 0;
 }
 
-int key_decode(chip8_t *chip8, uchar key, uchar flag) {
+int key_decode(uchar key, uchar flag) {
     flag = (flag == 0xFF) ? 0xFF : 0x00;
     if (flag == 0xFF) { //check which key is pressed
         switch (key)
@@ -457,7 +459,7 @@ int decode_F(chip8_t *chip8, uchar c2, uchar vx) {
         while (is_pressed == -1) {
             for (int i = 0; i < KEYS_SIZE; i++) {
                 if (state[i] == 1) {
-                    key_pressed = key_decode(chip8, state[i], 0xFF);
+                    key_pressed = key_decode(i, 0xFF);
                     if (key_decode != 0xFF) {
                         is_pressed = 0;
                     }
@@ -479,17 +481,17 @@ int decode_F(chip8_t *chip8, uchar c2, uchar vx) {
         chip8->I = chip8->V[vx];
         break;
     case 0x33: // LD B, Vx
-        chip8->memory[chip8->I] = chip8->V[vx] / 100;
-        chip8->memory[chip8->I+1] = chip8->V[vx] / 10;
-        chip8->memory[chip8->I+2] = chip8->V[vx] % 100 % 10;
+        chip8->memory[chip8->I] = chip8->V[vx] / 100; //hundreds
+        chip8->memory[chip8->I+1] = (chip8->V[vx] / 10) % 10; //tens
+        chip8->memory[chip8->I+2] = chip8->V[vx] % 10; //ones
         break;
     case 0x55: // LD [I], Vx
-        for (int i = 0; i < REG_FILE_SIZE; i++) {
+        for (int i = 0; i < vx; i++) {
             chip8->memory[chip8->I+i] = chip8->V[i];
         }
         break;
     case 0x65: // LD Vx, [I]
-        for (int i = 0; i < REG_FILE_SIZE; i++) {
+        for (int i = 0; i < vx; i++) {
             chip8->V[i] = chip8->memory[chip8->I+i];
         }
         break;
@@ -505,6 +507,5 @@ int cycle(chip8_t *chip8) {
     nanosleep(&req, NULL);
     //fetch - decode - execute
     if (fde(chip8) == 1) { return 1;}
-
     return 0;
 }

@@ -11,7 +11,7 @@
 #define REG_FILE_SIZE   0x10
 #define SIZE_OF_STACK   0x10
 
-#define DISPLAY_FACTOR  0x08
+#define DISPLAY_FACTOR  0x10
 #define DISPLAY_HIGHT   0x20
 #define DISPLAY_WIDTH   0x40
 #define DISPLAY_SIZE    ((DISPLAY_HIGHT * DISPLAY_FACTOR) * (DISPLAY_WIDTH * DISPLAY_FACTOR) * sizeof(char))
@@ -66,5 +66,5 @@ int decode_8(chip8_t *chip8, uchar c1, uchar vx, uchar vy);
 void decode_D(chip8_t *chip8, uchar c1, uchar vx, uchar vy);
 int decode_E(chip8_t *chip8, uchar c2, uchar vx);
 int decode_F(chip8_t *chip8, uchar c2, uchar vx);
-int key_decode(chip8_t *chip8, uchar key, uchar flag);
+int key_decode(uchar key, uchar flag);
 int cycle(chip8_t *chip8);
