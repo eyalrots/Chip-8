@@ -7,7 +7,7 @@
 //     exit(0);
 // }
 
-#define ROM "Pong (1 player).ch8"
+#define ROM "TETRIS"
 
 int main(int argc, char* argv[]) {
     chip8_t chip8;
