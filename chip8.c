@@ -271,8 +271,6 @@ void decode_D(chip8_t *chip8, uchar c1, uchar vx, uchar vy) {
 
         for (int j = 0; j < 8; j++) {
             uchar pxl = sprite & BYTESCAN(j);
-            if (chip8->I == 0x0000 && j == 0)
-                printf("sprite 0x%02X I+i 0x%04X\n", sprite, (chip8->I+i));
 
             if (chip8->display[fact_y_cor][fact_x_cor] == 1) {
                 chip8->V[15] = 1;
