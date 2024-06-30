@@ -7,7 +7,7 @@
 //     exit(0);
 // }
 
-#define ROM "ibm_logo.ch8"
+#define ROM "Pong (1 player).ch8"
 
 int main(int argc, char* argv[]) {
     chip8_t chip8;
@@ -37,7 +37,6 @@ int main(int argc, char* argv[]) {
     SDL_bool quit = SDL_FALSE;
     SDL_Event e;
     int cycle_counter = 0;
-    int flag = 0;
     while (!quit) {
         // Handle Events (look for quit event to close window)
         while (SDL_PollEvent(&e) != 0) {

@@ -11,7 +11,7 @@
 #define REG_FILE_SIZE   0x10
 #define SIZE_OF_STACK   0x10
 
-#define DISPLAY_FACTOR  0x10
+#define DISPLAY_FACTOR  0x08
 #define DISPLAY_HIGHT   0x20
 #define DISPLAY_WIDTH   0x40
 #define DISPLAY_SIZE    ((DISPLAY_HIGHT * DISPLAY_FACTOR) * (DISPLAY_WIDTH * DISPLAY_FACTOR) * sizeof(char))
@@ -34,7 +34,6 @@
 
 #define BYTESCAN(N)     (0x80 >> N)
 
-#define SCANCODE_LIST   {30,31,32,33,20,26,8,21,4,22,7,9,29,27,6,25}
 #define KEYS_SIZE       0x10
 
 typedef unsigned char   uchar;
@@ -56,6 +55,8 @@ typedef struct Chip8
 } chip8_t;
 
 extern const uchar charfont[FONT_SIZE];
+extern const ushort font_locations[0x10];
+extern const uchar scansodes[KEYS_SIZE];
 
 int init_chip8(chip8_t *chip8, const char *rom_file);
 int load_rom(chip8_t *chip8, const char *rom_file);

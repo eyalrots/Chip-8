@@ -25,6 +25,10 @@ const uchar charfont[FONT_SIZE] = {
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
 
+const ushort font_locations[0x10] = {0x0000, 0x0005, 0x000A, 0x000F, 0x0014, 0x0019, 0x1E, 0x23, 0x28, 0x2D, 0x32, 0x37, 0x3C, 0x41, 0x46, 0x4B};
+
+const uchar scancodes[KEYS_SIZE] = {30,31,32,33,20,26,8,21,4,22,7,9,29,27,6,25}; //1,2,3,4,Q,W,E,R,A,S,D,F,Z,X,C,V
+
 int init_chip8(chip8_t *chip8, const char *rom_file)
 {
     //init special-perpose registers
@@ -100,8 +104,11 @@ int fde(chip8_t *chip8) {
     //     printf("stooooop there's an ERROR here!!!\n");
     //     //return 1;
     // }
-    // printf("<<YAKIR>> address 0x%04X commad: 0x%04X\n", chip8->memory[chip8->PC], command);
+    // if (c3 == 0x0000 && opcode == 0x0A)
+    //     printf("<<YAKIR>> address 0x%04X commad: 0x%04X\n", chip8->memory[chip8->PC], command);
     //decode + execute(in cases)
+    if (command == 0xA2F2)
+        printf("A2F2: I 0x%04X\n", chip8->I);
     switch (opcode) {
         case 0x00:            
             if (decode_0(chip8, c2) == 1) { return 1;}
@@ -114,6 +121,7 @@ int fde(chip8_t *chip8) {
             chip8->SP++;
             chip8->stack[chip8->SP] = chip8->PC;
             chip8->PC = c3;
+            jump = 1;
             break;
         case 0x30://SE Vx, byte
             if (chip8->V[r_1] == c2){
@@ -145,6 +153,8 @@ int fde(chip8_t *chip8) {
             }
             break;
         case 0xA0://LD I, addr
+            if (command == 0xA2F2)
+                printf("A: I 0x%04X\n", chip8->I);
             chip8->I = c3;
             break;
         case 0xB0://JP V0, addr
@@ -171,7 +181,8 @@ int fde(chip8_t *chip8) {
     if (!jump) {
         chip8->PC += 2;
     }
-
+    if (chip8->I == 0x0000)
+        printf("<<YAKIR>> address 0x%04X commad: 0x%04X\n", chip8->memory[chip8->PC], command);
     return 0;
 }
 
@@ -268,18 +279,27 @@ void decode_D(chip8_t *chip8, uchar c1, uchar vx, uchar vy) {
     int fact_x_cor = x_cor * DISPLAY_FACTOR;
     int fact_y_cor = y_cor * DISPLAY_FACTOR;
     //printf("V[vx] 0x%02X V[vy] 0x%02X\n", chip8->V[vx], chip8->V[vy]);
-    // if (x_cor == 0x00)
-    //     printf("stooooop there's an ERROR here!!!\n");
+    // if (x_cor == 0x14)
+    //     printf("current sprite been drawn 0x%04X\n", chip8->I);
+    if (chip8->I == 0x0000)
+        printf("new draw\n");
     chip8->V[15] = 0;
     for (int i = 0; i < c1; i++) {
         uchar sprite = chip8->memory[chip8->I + i];
 
         for (int j = 0; j < 8; j++) {
             uchar pxl = sprite & BYTESCAN(j);
+            if (chip8->I == 0x0000 && j == 0)
+                printf("sprite 0x%02X I+i 0x%04X\n", sprite, (chip8->I+i));
 
             if (chip8->display[fact_y_cor][fact_x_cor] == 1) {
                 chip8->V[15] = 1;
             }
+
+            // if (chip8->I == 0x0001) {
+            //     printf("x 0x%02X y 0x%02X\n", fact_x_cor, fact_y_cor);
+            //     printf("0x%04X \n", chip8->display[fact_y_cor][fact_x_cor]);
+            // }
 
             for (int x = 0; x < DISPLAY_FACTOR; x++) {
                 for (int y = 0; y < DISPLAY_FACTOR; y++) {
@@ -287,6 +307,11 @@ void decode_D(chip8_t *chip8, uchar c1, uchar vx, uchar vy) {
                         chip8->display[fact_y_cor + y][fact_x_cor + x] ^= 1;
                 }
             }
+
+            // if (chip8->I == 0x0001) {
+            //     printf("x 0x%02X y 0x%02X\n", fact_x_cor, fact_y_cor);
+            //     printf("0x%04X \n", chip8->display[fact_y_cor][fact_x_cor]);
+            // }
 
             fact_x_cor += DISPLAY_FACTOR;
             if (fact_x_cor >= DISPLAY_WIDTH * DISPLAY_FACTOR) {
@@ -455,11 +480,11 @@ int decode_F(chip8_t *chip8, uchar c2, uchar vx) {
         chip8->V[vx] = chip8->DT;
         break;
     case 0x0A: // LD Vx, K
-        is_pressed = -1;
+        is_pressed = -1; //need to check scancode list.
         while (is_pressed == -1) {
             for (int i = 0; i < KEYS_SIZE; i++) {
-                if (state[i] == 1) {
-                    key_pressed = key_decode(i, 0xFF);
+                if (state[scancodes[i]] == 1) {
+                    key_pressed = key_decode(scancodes[i], 0xFF);
                     if (key_decode != 0xFF) {
                         is_pressed = 0;
                     }
@@ -476,22 +501,27 @@ int decode_F(chip8_t *chip8, uchar c2, uchar vx) {
         break;
     case 0x1E: // ADD I, Vx
         chip8->I += chip8->V[vx];
+        if (chip8->I == 0)
+            printf("I=0");
         break;
     case 0x29: // LD F, Vx
-        chip8->I = chip8->V[vx];
+        chip8->I = font_locations[chip8->V[vx]];
         break;
     case 0x33: // LD B, Vx
+        printf("33: I 0x%04X\n", chip8->I); //PROBLEM HERE!!!
+        printf("prev command: 0x%04X\n", chip8->memory[chip8->PC - 2] << 8 | chip8->memory[chip8->PC - 1]);
         chip8->memory[chip8->I] = chip8->V[vx] / 100; //hundreds
         chip8->memory[chip8->I+1] = (chip8->V[vx] / 10) % 10; //tens
         chip8->memory[chip8->I+2] = chip8->V[vx] % 10; //ones
         break;
     case 0x55: // LD [I], Vx
-        for (int i = 0; i < vx; i++) {
+        for (int i = 0; i <= vx; i++) {
+            printf("55: I+i 0x%04X\n", chip8->I+i);
             chip8->memory[chip8->I+i] = chip8->V[i];
         }
         break;
     case 0x65: // LD Vx, [I]
-        for (int i = 0; i < vx; i++) {
+        for (int i = 0; i <= vx; i++) {
             chip8->V[i] = chip8->memory[chip8->I+i];
         }
         break;
@@ -506,6 +536,7 @@ int cycle(chip8_t *chip8) {
     struct timespec req = {0, 1000};
     nanosleep(&req, NULL);
     //fetch - decode - execute
-    if (fde(chip8) == 1) { return 1;}
+    if (fde(chip8) == 1) 
+        return 1;
     return 0;
 }
