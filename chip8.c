@@ -67,7 +67,6 @@ int load_rom(chip8_t *chip8, const char *rom_file) {
     if (rfd == NULL) {
         return 1;
     }
-    printf("<<YAIR>> file size: %d\n", rom_file_size);
 
     if (rom_file_size > ROM_SIZE) {
         perror("ROM file too big!");
@@ -91,7 +90,6 @@ int load_rom(chip8_t *chip8, const char *rom_file) {
 int fde(chip8_t *chip8) {
     //fetch
     ushort command = chip8->memory[chip8->PC] << 8 | chip8->memory[chip8->PC + 1];
-    //ushort command = chip8->memory[chip8->PC];
     ushort opcode = (command >> 8) & OPCODE_MSK; //takes 4 MSB bits of command (8(4) bit)
     uchar r_1 = (command >> 8) & REG_MSK; //takes LSB nibble of the MSB byte (8(4) bit)
     uchar r_2 = (command >> 4) & REG_MSK; //takes MSB nibble of LSB byte (8(4) bit)
@@ -100,15 +98,7 @@ int fde(chip8_t *chip8) {
     ushort c3 = command & CONST_C3; //takes LSB nibble of MSB byte + LSB byte (16(12) bit)
     int jump = 0;
     uchar rand;
-    // if (chip8->V[0x0A] == 0x00) {
-    //     printf("stooooop there's an ERROR here!!!\n");
-    //     //return 1;
-    // }
-    // if (c3 == 0x0000 && opcode == 0x0A)
-    //     printf("<<YAKIR>> address 0x%04X commad: 0x%04X\n", chip8->memory[chip8->PC], command);
-    //decode + execute(in cases)
-    if (command == 0xA2F2)
-        printf("A2F2: I 0x%04X\n", chip8->I);
+    //decode + execute
     switch (opcode) {
         case 0x00:            
             if (decode_0(chip8, c2) == 1) { return 1;}
@@ -153,8 +143,6 @@ int fde(chip8_t *chip8) {
             }
             break;
         case 0xA0://LD I, addr
-            if (command == 0xA2F2)
-                printf("A: I 0x%04X\n", chip8->I);
             chip8->I = c3;
             break;
         case 0xB0://JP V0, addr
@@ -181,8 +169,6 @@ int fde(chip8_t *chip8) {
     if (!jump) {
         chip8->PC += 2;
     }
-    if (chip8->I == 0x0000)
-        printf("<<YAKIR>> address 0x%04X commad: 0x%04X\n", chip8->memory[chip8->PC], command);
     return 0;
 }
 
@@ -278,11 +264,7 @@ void decode_D(chip8_t *chip8, uchar c1, uchar vx, uchar vy) {
     uchar y_cor = chip8->V[vy] & DISPLAY_HIGHT - 1;
     int fact_x_cor = x_cor * DISPLAY_FACTOR;
     int fact_y_cor = y_cor * DISPLAY_FACTOR;
-    //printf("V[vx] 0x%02X V[vy] 0x%02X\n", chip8->V[vx], chip8->V[vy]);
-    // if (x_cor == 0x14)
-    //     printf("current sprite been drawn 0x%04X\n", chip8->I);
-    if (chip8->I == 0x0000)
-        printf("new draw\n");
+
     chip8->V[15] = 0;
     for (int i = 0; i < c1; i++) {
         uchar sprite = chip8->memory[chip8->I + i];
@@ -296,22 +278,12 @@ void decode_D(chip8_t *chip8, uchar c1, uchar vx, uchar vy) {
                 chip8->V[15] = 1;
             }
 
-            // if (chip8->I == 0x0001) {
-            //     printf("x 0x%02X y 0x%02X\n", fact_x_cor, fact_y_cor);
-            //     printf("0x%04X \n", chip8->display[fact_y_cor][fact_x_cor]);
-            // }
-
             for (int x = 0; x < DISPLAY_FACTOR; x++) {
                 for (int y = 0; y < DISPLAY_FACTOR; y++) {
                     if (pxl != 0)
                         chip8->display[fact_y_cor + y][fact_x_cor + x] ^= 1;
                 }
             }
-
-            // if (chip8->I == 0x0001) {
-            //     printf("x 0x%02X y 0x%02X\n", fact_x_cor, fact_y_cor);
-            //     printf("0x%04X \n", chip8->display[fact_y_cor][fact_x_cor]);
-            // }
 
             fact_x_cor += DISPLAY_FACTOR;
             if (fact_x_cor >= DISPLAY_WIDTH * DISPLAY_FACTOR) {
@@ -501,22 +473,17 @@ int decode_F(chip8_t *chip8, uchar c2, uchar vx) {
         break;
     case 0x1E: // ADD I, Vx
         chip8->I += chip8->V[vx];
-        if (chip8->I == 0)
-            printf("I=0");
         break;
     case 0x29: // LD F, Vx
         chip8->I = font_locations[chip8->V[vx]];
         break;
     case 0x33: // LD B, Vx
-        printf("33: I 0x%04X\n", chip8->I); //PROBLEM HERE!!!
-        printf("prev command: 0x%04X\n", chip8->memory[chip8->PC - 2] << 8 | chip8->memory[chip8->PC - 1]);
         chip8->memory[chip8->I] = chip8->V[vx] / 100; //hundreds
         chip8->memory[chip8->I+1] = (chip8->V[vx] / 10) % 10; //tens
         chip8->memory[chip8->I+2] = chip8->V[vx] % 10; //ones
         break;
     case 0x55: // LD [I], Vx
         for (int i = 0; i <= vx; i++) {
-            printf("55: I+i 0x%04X\n", chip8->I+i);
             chip8->memory[chip8->I+i] = chip8->V[i];
         }
         break;

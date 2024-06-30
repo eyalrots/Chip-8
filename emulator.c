@@ -7,7 +7,7 @@
 //     exit(0);
 // }
 
-#define ROM "Pong (1 player).ch8"
+#define ROM "Paddles.ch8"
 
 int main(int argc, char* argv[]) {
     chip8_t chip8;
@@ -43,14 +43,6 @@ int main(int argc, char* argv[]) {
             if (e.type == SDL_QUIT) {
                 quit = SDL_TRUE;
             }
-            
-            // if (emulate_cycle(&chip8, renderer, cycle_counter) == 1)
-            //     break;
-            // else
-            //     cycle_counter ++;
-            
-            // if (cycle_counter > TIMER_DELAY)
-            //     cycle_counter = 0;
         }
         if (emulate_cycle(&chip8, renderer, cycle_counter) == 1)
             break;
@@ -75,7 +67,6 @@ int emulate_cycle(chip8_t *chip8, SDL_Renderer* renderer, int cycle_counter) {
         printf("chip cycle exited with exit code 1\n");
         return 1;
     }
-    //printf("c_c %d\n", cycle_counter);
     //timer ahndlling
     if (cycle_counter == TIMER_DELAY) {
         //printf("timer decreased\n");
@@ -91,7 +82,6 @@ int emulate_cycle(chip8_t *chip8, SDL_Renderer* renderer, int cycle_counter) {
     for (int h = 0; h < DISPLAY_HIGHT*DISPLAY_FACTOR; h++) {
         for (int w = 0; w < DISPLAY_WIDTH*DISPLAY_FACTOR; w++) {
             if (chip8->display[h][w] == 1) {
-               // printf("<<YAKIR>> drawing picel at h %d w %d\n", h, w);
                 SDL_RenderDrawPoint(renderer, w, h);
             }
         }
@@ -99,4 +89,3 @@ int emulate_cycle(chip8_t *chip8, SDL_Renderer* renderer, int cycle_counter) {
     SDL_RenderPresent(renderer);
     return 0;
 }
-// comment all of this
