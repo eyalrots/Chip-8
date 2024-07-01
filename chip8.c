@@ -328,16 +328,16 @@ int key_decode(uchar key, uchar flag) {
     if (flag == 0xFF) { //check which key is pressed
         switch (key)
         {
-        case SDL_SCANCODE_1:
+        case SDL_SCANCODE_X:
             return 0x00;
             break;
-        case SDL_SCANCODE_2:
+        case SDL_SCANCODE_1:
             return 0x01;
             break;
-        case SDL_SCANCODE_3:
+        case SDL_SCANCODE_2:
             return 0x02;
             break;
-        case SDL_SCANCODE_4:
+        case SDL_SCANCODE_3:
             return 0x03;
             break;
         case SDL_SCANCODE_Q:
@@ -349,28 +349,28 @@ int key_decode(uchar key, uchar flag) {
         case SDL_SCANCODE_E:
             return 0x06;
             break;
-        case SDL_SCANCODE_R:
+        case SDL_SCANCODE_A:
             return 0x07;
             break;
-        case SDL_SCANCODE_A:
+        case SDL_SCANCODE_S:
             return 0x08;
             break;
-        case SDL_SCANCODE_S:
+        case SDL_SCANCODE_D:
             return 0x09;
             break;
-        case SDL_SCANCODE_D:
+        case SDL_SCANCODE_Z:
             return 0x0A;
             break;
-        case SDL_SCANCODE_F:
+        case SDL_SCANCODE_C:
             return 0x0B;
             break;
-        case SDL_SCANCODE_Z:
+        case SDL_SCANCODE_4:
             return 0x0C;
             break;
-        case SDL_SCANCODE_X:
+        case SDL_SCANCODE_R:
             return 0x0D;
             break;
-        case SDL_SCANCODE_C:
+        case SDL_SCANCODE_F:
             return 0x0E;
             break;
         case SDL_SCANCODE_V:
@@ -384,16 +384,16 @@ int key_decode(uchar key, uchar flag) {
         switch (key)
         {
         case 0x00:
-            return SDL_SCANCODE_1;
+            return SDL_SCANCODE_X;
             break;
         case 0x01:
-            return SDL_SCANCODE_2;
+            return SDL_SCANCODE_1;
             break;
         case 0x02:
-            return SDL_SCANCODE_3;
+            return SDL_SCANCODE_2;
             break;
         case 0x03:
-            return SDL_SCANCODE_4;
+            return SDL_SCANCODE_3;
             break;
         case 0x04:
             return SDL_SCANCODE_Q;
@@ -405,28 +405,28 @@ int key_decode(uchar key, uchar flag) {
             return SDL_SCANCODE_E;
             break;
         case 0x07:
-            return SDL_SCANCODE_R;
-            break;
-        case 0x08:
             return SDL_SCANCODE_A;
             break;
-        case 0x09:
+        case 0x08:
             return SDL_SCANCODE_S;
             break;
-        case 0x0A:
+        case 0x09:
             return SDL_SCANCODE_D;
             break;
-        case 0x0B:
-            return SDL_SCANCODE_F;
-            break;
-        case 0x0C:
+        case 0x0A:
             return SDL_SCANCODE_Z;
             break;
+        case 0x0B:
+            return SDL_SCANCODE_C;
+            break;
+        case 0x0C:
+            return SDL_SCANCODE_4;
+            break;
         case 0x0D:
-            return SDL_SCANCODE_X;
+            return SDL_SCANCODE_R;
             break;
         case 0x0E:
-            return SDL_SCANCODE_C;
+            return SDL_SCANCODE_F;
             break;
         case 0x0F:
             return SDL_SCANCODE_V;
