@@ -7,7 +7,7 @@
 //     exit(0);
 // }
 
-#define ROM "Paddles.ch8"
+#define ROM "BRIX"
 
 int main(int argc, char* argv[]) {
     chip8_t chip8;
