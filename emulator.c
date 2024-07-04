@@ -7,7 +7,7 @@
 //     exit(0);
 // }
 
-#define ROM "BRIX"
+#define ROM "Pong (1 player).ch8"
 
 int main(int argc, char* argv[]) {
     chip8_t chip8;
